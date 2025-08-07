@@ -3,41 +3,129 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>تست چارت کندل</title>
-<script src="https://unpkg.com/lightweight-charts@3.9.0/dist/lightweight-charts.standalone.production.js"></script>
+<title>چارت‌های فارکس</title>
 <style>
-  html, body {
-    margin: 0; padding: 0; height: 100%;
+  body {
+    margin: 0;
     background-color: #121212;
-    color: white;
-    font-family: Tahoma, sans-serif;
+    color: #fff;
+    font-family: Tahoma, Arial, sans-serif;
   }
-  #chart {
-    width: 100vw;
-    height: 100vh;
+  h2 {
+    margin: 10px 0 5px 10px;
+  }
+  .chart-container {
+    height: 800px; /* ارتفاع هر پنجره */
+    width: 100%;
+    margin-bottom: 20px;
+    background-color: #222;
+    border-radius: 8px;
+    box-shadow: 0 0 8px #000;
+    overflow: hidden;
   }
 </style>
 </head>
 <body>
 
-<div id="chart"></div>
+<div id="charts-wrapper"></div>
 
+<!-- کتابخانه Lightweight Charts از TradingView -->
+<script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
 <script>
-  const chart = LightweightCharts.createChart(document.getElementById('chart'), {
-    layout: {
-      backgroundColor: '#121212',
-      textColor: 'white',
-    },
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
-  const candleSeries = chart.addCandlestickSeries();
-  candleSeries.setData([
-    { time: '2023-08-01', open: 1.1000, high: 1.1050, low: 1.0950, close: 1.1020 },
-    { time: '2023-08-02', open: 1.1020, high: 1.1100, low: 1.1000, close: 1.1080 },
-    { time: '2023-08-03', open: 1.1080, high: 1.1150, low: 1.1050, close: 1.1120 },
-  ]);
-</script>
+  // نمادها و تایم فریم‌ها
+  const symbols = [
+    "EURUSD", "GBPUSD", "USDJPY", "AUDUSD",
+    "USDCAD", "USDCHF", "NZDUSD", "EURGBP"
+  ];
+  const timeframes = [
+    {label: "۱۵ دقیقه", resolution: "15"},
+    {label: "۳۰ دقیقه", resolution: "30"},
+    {label: "۱ ساعت", resolution: "60"},
+    {label: "۴ ساعت", resolution: "240"}
+  ];
 
+  const chartsWrapper = document.getElementById("charts-wrapper");
+
+  // تابع نمونه‌سازی دیتای تصادفی کندل‌ها (برای دمو)
+  function generateRandomCandles(count) {
+    let candles = [];
+    let time = Math.floor(Date.now() / 1000) - count * 60 * 15; // شروع زمان 15 دقیقه‌ای
+    let price = 1.1 + Math.random() * 0.1;
+    for(let i=0; i<count; i++) {
+      let open = price;
+      let close = open + (Math.random() - 0.5) * 0.01;
+      let high = Math.max(open, close) + Math.random() * 0.005;
+      let low = Math.min(open, close) - Math.random() * 0.005;
+      candles.push({
+        time: time,
+        open: parseFloat(open.toFixed(5)),
+        high: parseFloat(high.toFixed(5)),
+        low: parseFloat(low.toFixed(5)),
+        close: parseFloat(close.toFixed(5))
+      });
+      price = close;
+      time += 60 * 15; // افزایش ۱۵ دقیقه
+    }
+    return candles;
+  }
+
+  // ساخت پنجره‌های چارت
+  symbols.forEach(symbol => {
+    timeframes.forEach(tf => {
+      // ساخت div کانتینر چارت
+      const container = document.createElement("div");
+      container.className = "chart-container";
+
+      // عنوان چارت
+      const title = document.createElement("h2");
+      title.textContent = `${symbol} - تایم فریم ${tf.label}`;
+      container.appendChild(title);
+
+      // div چارت
+      const chartDiv = document.createElement("div");
+      chartDiv.style.height = "760px"; //  ارتفاع داخل کانتینر با کمی فاصله برای عنوان
+      chartDiv.style.width = "100%";
+      container.appendChild(chartDiv);
+
+      chartsWrapper.appendChild(container);
+
+      // ساخت چارت
+      const chart = LightweightCharts.createChart(chartDiv, {
+        layout: {
+          backgroundColor: '#222',
+          textColor: '#ddd',
+        },
+        grid: {
+          vertLines: { color: '#444' },
+          horzLines: { color: '#444' },
+        },
+        crosshair: {
+          mode: LightweightCharts.CrosshairMode.Normal,
+        },
+        rightPriceScale: {
+          borderColor: '#555',
+        },
+        timeScale: {
+          borderColor: '#555',
+          timeVisible: true,
+          secondsVisible: false,
+        },
+      });
+
+      // اضافه کردن کندل‌ها
+      const candleSeries = chart.addCandlestickSeries({
+        upColor: '#4caf50',
+        downColor: '#f44336',
+        borderVisible: false,
+        wickUpColor: '#4caf50',
+        wickDownColor: '#f44336',
+      });
+
+      // اضافه کردن دیتا (دیتای ساختگی)
+      const candleData = generateRandomCandles(100);
+      candleSeries.setData(candleData);
+    });
+  });
+</script>
 </body>
 </html>
