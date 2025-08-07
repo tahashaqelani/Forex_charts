@@ -1,1 +1,115 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>چارت کندل‌استیک ۸ نماد فارکس</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #eee;
+      font-family: Tahoma, sans-serif;
+      padding: 20px;
+    }
+    .widget-block {
+      background-color: #1e1e1e;
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+    }
+    .tabs {
+      margin-bottom: 10px;
+    }
+    .tabs button {
+      background-color: #333;
+      border: none;
+      color: #eee;
+      padding: 8px 12px;
+      margin-right: 5px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .tabs button.active {
+      background-color: #2196F3;
+    }
+    .widget-container {
+      width: 100%;
+      height: 400px;
+    }
+  </style>
+</head>
+<body>
+  <h1>چارت کندل‌استیک حرفه‌ای - ۸ نماد اصلی فارکس</h1>
 
+  <!-- چارت‌ها -->
+  <div id="charts"></div>
+
+  <script src="https://s3.tradingview.com/tv.js"></script>
+  <script>
+    const symbols = [
+      "AUDCHF", "EURJPY", "EURCAD", "EURAUD",
+      "EURNZD", "EURGBP", "GBPAUD", "GBPNZD"
+    ];
+
+    const timeframes = [
+      { label: "1h", value: "60" },
+      { label: "4h", value: "240" },
+      { label: "1d", value: "1D" },
+      { label: "1w", value: "1W" }
+    ];
+
+    const chartsContainer = document.getElementById("charts");
+
+    function createWidgetBlock(symbol) {
+      const block = document.createElement("div");
+      block.className = "widget-block";
+      block.innerHTML = `
+        <h2>${symbol}</h2>
+        <div class="tabs">
+          ${timeframes.map(tf => `<button onclick="showWidget('${symbol}', '${tf.value}', this)">${tf.label}</button>`).join("")}
+        </div>
+        <div id="${symbol}-widget" class="widget-container"></div>
+      `;
+      chartsContainer.appendChild(block);
+    }
+
+    symbols.forEach(createWidgetBlock);
+
+    const currentWidgets = {};
+
+    function showWidget(symbol, interval, btn) {
+      const containerId = symbol + "-widget";
+      const container = document.getElementById(containerId);
+
+      container.innerHTML = "";
+
+      // غیر فعال کردن همه دکمه‌ها
+      Array.from(btn.parentNode.children).forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      currentWidgets[symbol] = new TradingView.widget({
+        autosize: true,
+        symbol: "OANDA:" + symbol,
+        interval: interval,
+        timezone: "Etc/UTC",
+        theme: "dark",
+        style: "1",
+        locale: "fa",
+        toolbar_bg: "#1e1e1e",
+        enable_publishing: false,
+        hide_top_toolbar: false,
+        withdateranges: true,
+        container_id: containerId
+      });
+    }
+
+    // نمایش اولیه همه با 1h
+    window.onload = () => {
+      symbols.forEach(symbol => {
+        const firstButton = document.querySelector(`#${symbol}-widget`).previousElementSibling.children[0];
+        showWidget(symbol, "60", firstButton);
+      });
+    };
+  </script>
+</body>
+</html>
