@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>چارت نمادهای اصلی فارکس - دارک مود</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #eee;
+    font-family: Tahoma, sans-serif;
+  }
+  .chart-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+    background: #222;
+    border-radius: 8px;
+    padding: 15px;
+  }
+  h2 {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  canvas {
+    background: #333;
+    border-radius: 5px;
+  }
+</style>
+</head>
+<body>
+
+<div class="chart-container">
+  <h2>نماد EURUSD</h2>
+  <canvas id="chart-eurusd" width="600" height="300"></canvas>
+</div>
+
+<div class="chart-container">
+  <h2>نماد GBPUSD</h2>
+  <canvas id="chart-gbpusd" width="600" height="300"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const dataEURUSD = {
+    labels: ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه'],
+    datasets: [{
+      label: 'قیمت',
+      data: [1.18, 1.19, 1.17, 1.20, 1.22],
+      borderColor: '#4bc0c0',
+      backgroundColor: 'rgba(75,192,192,0.2)',
+      fill: true,
+      tension: 0.3
+    }]
+  };
+
+  const optionsDark = {
+    scales: {
+      x: { 
+        ticks: { color: '#eee' },
+        grid: { color: '#444' }
+      },
+      y: { 
+        ticks: { color: '#eee' },
+        grid: { color: '#444' }
+      }
+    },
+    plugins: {
+      legend: { labels: { color: '#eee' } }
+    }
+  };
+
+  const ctxEURUSD = document.getElementById('chart-eurusd').getContext('2d');
+  new Chart(ctxEURUSD, {
+    type: 'line',
+    data: dataEURUSD,
+    options: optionsDark
+  });
+
+  // چارت GBPUSD
+  const dataGBPUSD = {
+    labels: ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه'],
+    datasets: [{
+      label: 'قیمت',
+      data: [1.38, 1.37, 1.36, 1.39, 1.41],
+      borderColor: '#ff6384',
+      backgroundColor: 'rgba(255,99,132,0.2)',
+      fill: true,
+      tension: 0.3
+    }]
+  };
+
+  const ctxGBPUSD = document.getElementById('chart-gbpusd').getContext('2d');
+  new Chart(ctxGBPUSD, {
+    type: 'line',
+    data: dataGBPUSD,
+    options: optionsDark
+  });
+</script>
+
+</body>
+</html>
