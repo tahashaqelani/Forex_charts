@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 <title>چارت کندل‌استیک فارکس - ۸ نماد و ۴ تایم فریم - اسکرول</title>
 <style>
-  body {
-    margin: 0;
+  html, body {
+    margin: 0; padding: 0; height: 100%;
     background-color: #121212;
     color: white;
     font-family: Tahoma, sans-serif;
@@ -16,19 +16,18 @@
     text-align: center;
     font-weight: normal;
   }
-  .symbol-block {
-    border-bottom: 1px solid #333;
-    padding: 10px 15px 5px 15px;
-  }
-  .symbol-title {
-    font-size: 20px;
-    margin-bottom: 10px;
+  #charts-root {
+    /* برای نمایش عمودی */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 30px;
   }
   .timeframe-chart {
-    width: 100vw;
-    height: 100vh;
-    background: #1e1e1e;
     position: relative;
+    width: 100vw;
+    height: 100vh; /* ارتفاع کامل صفحه */
+    background: #1e1e1e;
   }
   .tf-label {
     position: absolute;
@@ -94,10 +93,15 @@
     label.textContent = `${symbol} — ${tf.label}`;
     container.appendChild(label);
 
-    // ایجاد چارت
-    const chart = LightweightCharts.createChart(container, {
-      width: window.innerWidth,
-      height: window.innerHeight,
+    // یک div فرزند برای چارت (پر کردن کل فضای container)
+    const chartInnerDiv = document.createElement('div');
+    chartInnerDiv.style.width = '100%';
+    chartInnerDiv.style.height = '100%';
+    container.appendChild(chartInnerDiv);
+
+    const chart = LightweightCharts.createChart(chartInnerDiv, {
+      width: chartInnerDiv.clientWidth,
+      height: chartInnerDiv.clientHeight,
       layout: {
         backgroundColor: '#121212',
         textColor: 'rgba(255, 255, 255, 0.8)',
@@ -128,6 +132,13 @@
     const candles = generateFakeCandles(50, now - 50 * tf.minutes * 60, tf.minutes);
     candleSeries.setData(candles);
 
+    // تابع برای ری‌سایز چارت با تغییر سایز صفحه
+    function resizeChart() {
+      chart.applyOptions({ width: chartInnerDiv.clientWidth, height: chartInnerDiv.clientHeight });
+      chart.resize(chartInnerDiv.clientWidth, chartInnerDiv.clientHeight);
+    }
+    window.addEventListener('resize', resizeChart);
+
     return container;
   }
 
@@ -136,12 +147,6 @@
       const chartDiv = createChartDiv(symbol, tf);
       root.appendChild(chartDiv);
     });
-  });
-
-  // واکنش به تغییر سایز صفحه (برای اندازه صحیح چارت‌ها)
-  window.addEventListener('resize', () => {
-    // صفحه رو رفرش کن ساده ترین راه
-    location.reload();
   });
 </script>
 
