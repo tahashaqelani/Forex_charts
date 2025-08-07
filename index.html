@@ -2,36 +2,45 @@
 <html lang="fa">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>چارت کندل‌استیک فارکس - ۸ نماد و ۴ تایم فریم</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>چارت کندل‌استیک فارکس - ۸ نماد و ۴ تایم فریم - اسکرول</title>
 <style>
   body {
+    margin: 0;
     background-color: #121212;
     color: white;
     font-family: Tahoma, sans-serif;
-    margin: 0; padding: 10px;
   }
-  h2 {
-    margin: 15px 0 5px 0;
+  h1 {
+    padding: 15px;
+    text-align: center;
     font-weight: normal;
   }
   .symbol-block {
-    border: 1px solid #333;
-    margin-bottom: 30px;
-    padding: 10px;
-    border-radius: 6px;
+    border-bottom: 1px solid #333;
+    padding: 10px 15px 5px 15px;
   }
-  .timeframes {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
+  .symbol-title {
+    font-size: 20px;
+    margin-bottom: 10px;
   }
-  .chart-container {
+  .timeframe-chart {
+    width: 100vw;
+    height: 100vh;
     background: #1e1e1e;
-    border-radius: 6px;
-    padding: 5px;
-    width: 300px;
-    height: 500px;
+    position: relative;
+  }
+  .tf-label {
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    background: rgba(0,0,0,0.5);
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 14px;
+    color: #ccc;
+    z-index: 10;
+    user-select: none;
   }
 </style>
 <script src="https://unpkg.com/lightweight-charts@3.9.0/dist/lightweight-charts.standalone.production.js"></script>
@@ -75,71 +84,64 @@
     return candles;
   }
 
-  function createSymbolBlock(symbol) {
+  function createChartDiv(symbol, tf) {
     const container = document.createElement('div');
-    container.className = 'symbol-block';
+    container.className = 'timeframe-chart';
 
-    const title = document.createElement('h2');
-    title.textContent = `نماد: ${symbol}`;
-    container.appendChild(title);
+    // برچسب تایم فریم
+    const label = document.createElement('div');
+    label.className = 'tf-label';
+    label.textContent = `${symbol} — ${tf.label}`;
+    container.appendChild(label);
 
-    const tfContainer = document.createElement('div');
-    tfContainer.className = 'timeframes';
-
-    timeframes.forEach(tf => {
-      const chartDiv = document.createElement('div');
-      chartDiv.className = 'chart-container';
-      tfContainer.appendChild(chartDiv);
-
-      const chart = LightweightCharts.createChart(chartDiv, {
-        width: 300,
-        height: 500,
-        layout: {
-          backgroundColor: '#121212',
-          textColor: 'rgba(255, 255, 255, 0.8)',
-        },
-        grid: {
-          vertLines: { color: '#333' },
-          horzLines: { color: '#333' },
-        },
-        rightPriceScale: {
-          borderColor: '#555',
-        },
-        timeScale: {
-          borderColor: '#555',
-          timeVisible: true,
-          secondsVisible: false,
-        },
-      });
-
-      const candleSeries = chart.addCandlestickSeries({
-        upColor: '#4CAF50',
-        downColor: '#F44336',
-        borderVisible: false,
-        wickUpColor: '#4CAF50',
-        wickDownColor: '#F44336',
-      });
-
-      const now = Math.floor(Date.now() / 1000);
-      const candles = generateFakeCandles(50, now - 50 * tf.minutes * 60, tf.minutes);
-      candleSeries.setData(candles);
-
-      const label = document.createElement('div');
-      label.style.color = '#ccc';
-      label.style.fontSize = '12px';
-      label.style.textAlign = 'center';
-      label.style.marginTop = '5px';
-      label.textContent = tf.label;
-      chartDiv.appendChild(label);
+    // ایجاد چارت
+    const chart = LightweightCharts.createChart(container, {
+      width: window.innerWidth,
+      height: window.innerHeight,
+      layout: {
+        backgroundColor: '#121212',
+        textColor: 'rgba(255, 255, 255, 0.8)',
+      },
+      grid: {
+        vertLines: { color: '#333' },
+        horzLines: { color: '#333' },
+      },
+      rightPriceScale: {
+        borderColor: '#555',
+      },
+      timeScale: {
+        borderColor: '#555',
+        timeVisible: true,
+        secondsVisible: false,
+      },
     });
 
-    container.appendChild(tfContainer);
+    const candleSeries = chart.addCandlestickSeries({
+      upColor: '#4CAF50',
+      downColor: '#F44336',
+      borderVisible: false,
+      wickUpColor: '#4CAF50',
+      wickDownColor: '#F44336',
+    });
+
+    const now = Math.floor(Date.now() / 1000);
+    const candles = generateFakeCandles(50, now - 50 * tf.minutes * 60, tf.minutes);
+    candleSeries.setData(candles);
+
     return container;
   }
 
-  symbols.forEach(sym => {
-    const block = createSymbolBlock(sym);
-    root.appendChild(block);
+  symbols.forEach(symbol => {
+    timeframes.forEach(tf => {
+      const chartDiv = createChartDiv(symbol, tf);
+      root.appendChild(chartDiv);
+    });
+  });
+
+  // واکنش به تغییر سایز صفحه (برای اندازه صحیح چارت‌ها)
+  window.addEventListener('resize', () => {
+    // صفحه رو رفرش کن ساده ترین راه
+    location.reload();
   });
 </script>
 
