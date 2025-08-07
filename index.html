@@ -2,8 +2,9 @@
 <html lang="fa">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-<title>چارت کندل‌استیک فارکس - ۸ نماد و ۴ تایم فریم - اسکرول</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>تست چارت کندل</title>
+<script src="https://unpkg.com/lightweight-charts@3.9.0/dist/lightweight-charts.standalone.production.js"></script>
 <style>
   html, body {
     margin: 0; padding: 0; height: 100%;
@@ -11,143 +12,31 @@
     color: white;
     font-family: Tahoma, sans-serif;
   }
-  h1 {
-    padding: 15px;
-    text-align: center;
-    font-weight: normal;
-  }
-  #charts-root {
-    /* برای نمایش عمودی */
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding-bottom: 30px;
-  }
-  .timeframe-chart {
-    position: relative;
+  #chart {
     width: 100vw;
-    height: 100vh; /* ارتفاع کامل صفحه */
-    background: #1e1e1e;
-  }
-  .tf-label {
-    position: absolute;
-    top: 6px;
-    right: 10px;
-    background: rgba(0,0,0,0.5);
-    padding: 3px 8px;
-    border-radius: 5px;
-    font-size: 14px;
-    color: #ccc;
-    z-index: 10;
-    user-select: none;
+    height: 100vh;
   }
 </style>
-<script src="https://unpkg.com/lightweight-charts@3.9.0/dist/lightweight-charts.standalone.production.js"></script>
 </head>
 <body>
 
-<h1>۸ نماد اصلی فارکس با ۴ تایم فریم (کندل‌استیک)</h1>
-
-<div id="charts-root"></div>
+<div id="chart"></div>
 
 <script>
-  const symbols = ['EURUSD', 'GBPUSD', 'USDJPY', 'USDCHF', 'USDCAD', 'AUDUSD', 'NZDUSD', 'EURGBP'];
-  const timeframes = [
-    {label: '۱۵ دقیقه', minutes: 15},
-    {label: '۳۰ دقیقه', minutes: 30},
-    {label: '۱ ساعت', minutes: 60},
-    {label: '۴ ساعت', minutes: 240}
-  ];
-
-  const root = document.getElementById('charts-root');
-
-  function generateFakeCandles(numCandles, startTime, intervalMinutes) {
-    const candles = [];
-    let time = startTime;
-    let price = 1.1000 + Math.random() * 0.01;
-    for (let i = 0; i < numCandles; i++) {
-      const open = price;
-      const close = open + (Math.random() - 0.5) * 0.002;
-      const high = Math.max(open, close) + Math.random() * 0.001;
-      const low = Math.min(open, close) - Math.random() * 0.001;
-      candles.push({
-        time: time,
-        open: parseFloat(open.toFixed(5)),
-        close: parseFloat(close.toFixed(5)),
-        high: parseFloat(high.toFixed(5)),
-        low: parseFloat(low.toFixed(5))
-      });
-      time += intervalMinutes * 60;
-      price = close;
-    }
-    return candles;
-  }
-
-  function createChartDiv(symbol, tf) {
-    const container = document.createElement('div');
-    container.className = 'timeframe-chart';
-
-    // برچسب تایم فریم
-    const label = document.createElement('div');
-    label.className = 'tf-label';
-    label.textContent = `${symbol} — ${tf.label}`;
-    container.appendChild(label);
-
-    // یک div فرزند برای چارت (پر کردن کل فضای container)
-    const chartInnerDiv = document.createElement('div');
-    chartInnerDiv.style.width = '100%';
-    chartInnerDiv.style.height = '100%';
-    container.appendChild(chartInnerDiv);
-
-    const chart = LightweightCharts.createChart(chartInnerDiv, {
-      width: chartInnerDiv.clientWidth,
-      height: chartInnerDiv.clientHeight,
-      layout: {
-        backgroundColor: '#121212',
-        textColor: 'rgba(255, 255, 255, 0.8)',
-      },
-      grid: {
-        vertLines: { color: '#333' },
-        horzLines: { color: '#333' },
-      },
-      rightPriceScale: {
-        borderColor: '#555',
-      },
-      timeScale: {
-        borderColor: '#555',
-        timeVisible: true,
-        secondsVisible: false,
-      },
-    });
-
-    const candleSeries = chart.addCandlestickSeries({
-      upColor: '#4CAF50',
-      downColor: '#F44336',
-      borderVisible: false,
-      wickUpColor: '#4CAF50',
-      wickDownColor: '#F44336',
-    });
-
-    const now = Math.floor(Date.now() / 1000);
-    const candles = generateFakeCandles(50, now - 50 * tf.minutes * 60, tf.minutes);
-    candleSeries.setData(candles);
-
-    // تابع برای ری‌سایز چارت با تغییر سایز صفحه
-    function resizeChart() {
-      chart.applyOptions({ width: chartInnerDiv.clientWidth, height: chartInnerDiv.clientHeight });
-      chart.resize(chartInnerDiv.clientWidth, chartInnerDiv.clientHeight);
-    }
-    window.addEventListener('resize', resizeChart);
-
-    return container;
-  }
-
-  symbols.forEach(symbol => {
-    timeframes.forEach(tf => {
-      const chartDiv = createChartDiv(symbol, tf);
-      root.appendChild(chartDiv);
-    });
+  const chart = LightweightCharts.createChart(document.getElementById('chart'), {
+    layout: {
+      backgroundColor: '#121212',
+      textColor: 'white',
+    },
+    width: window.innerWidth,
+    height: window.innerHeight,
   });
+  const candleSeries = chart.addCandlestickSeries();
+  candleSeries.setData([
+    { time: '2023-08-01', open: 1.1000, high: 1.1050, low: 1.0950, close: 1.1020 },
+    { time: '2023-08-02', open: 1.1020, high: 1.1100, low: 1.1000, close: 1.1080 },
+    { time: '2023-08-03', open: 1.1080, high: 1.1150, low: 1.1050, close: 1.1120 },
+  ]);
 </script>
 
 </body>
