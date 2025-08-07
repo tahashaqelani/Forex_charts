@@ -31,7 +31,7 @@
     border-radius: 6px;
     padding: 5px;
     width: 300px;
-    height: 200px;
+    height: 500px;
   }
 </style>
 <script src="https://unpkg.com/lightweight-charts@3.9.0/dist/lightweight-charts.standalone.production.js"></script>
@@ -53,11 +53,10 @@
 
   const root = document.getElementById('charts-root');
 
-  // تابع تولید داده فرضی کندل (باز، بسته، بالا، پایین)
   function generateFakeCandles(numCandles, startTime, intervalMinutes) {
     const candles = [];
     let time = startTime;
-    let price = 1.1000 + Math.random() * 0.01; // قیمت شروع فرضی
+    let price = 1.1000 + Math.random() * 0.01;
     for (let i = 0; i < numCandles; i++) {
       const open = price;
       const close = open + (Math.random() - 0.5) * 0.002;
@@ -70,13 +69,12 @@
         high: parseFloat(high.toFixed(5)),
         low: parseFloat(low.toFixed(5))
       });
-      time += intervalMinutes * 60; // افزایش timestamp به ثانیه
+      time += intervalMinutes * 60;
       price = close;
     }
     return candles;
   }
 
-  // تابع ساخت هر نماد و تایم فریم
   function createSymbolBlock(symbol) {
     const container = document.createElement('div');
     container.className = 'symbol-block';
@@ -93,10 +91,9 @@
       chartDiv.className = 'chart-container';
       tfContainer.appendChild(chartDiv);
 
-      // ایجاد چارت کندل‌استیک
       const chart = LightweightCharts.createChart(chartDiv, {
         width: 300,
-        height: 200,
+        height: 500,
         layout: {
           backgroundColor: '#121212',
           textColor: 'rgba(255, 255, 255, 0.8)',
@@ -123,12 +120,10 @@
         wickDownColor: '#F44336',
       });
 
-      // تولید داده فرضی
       const now = Math.floor(Date.now() / 1000);
       const candles = generateFakeCandles(50, now - 50 * tf.minutes * 60, tf.minutes);
       candleSeries.setData(candles);
 
-      // اضافه کردن عنوان تایم‌فریم به بالای چارت
       const label = document.createElement('div');
       label.style.color = '#ccc';
       label.style.fontSize = '12px';
@@ -142,7 +137,6 @@
     return container;
   }
 
-  // اضافه کردن همه نمادها به صفحه
   symbols.forEach(sym => {
     const block = createSymbolBlock(sym);
     root.appendChild(block);
